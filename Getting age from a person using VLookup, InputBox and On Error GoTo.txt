@@ -1,0 +1,18 @@
+Sub GettingAge()
+Dim name As String
+Dim age As Integer
+Dim myrange As Range
+name = InputBox("Enter a name")
+Set myrange = Range("A20:B28")
+'The names are in range "A20:A28" and their ages are in range "B20:B28"
+On Error GoTo MyErrorHandler
+If Len(name) > 0 Then
+age = Application.WorksheetFunction.VLookup(name, myrange, 2, False)
+MsgBox "The age of " & name & " is " & age
+Else: MsgBox "The name should contain at least one character"
+End If
+MyErrorHandler:
+If Err.Number = 1004 Then
+MsgBox "This name does not belong to the list"
+End If
+End Sub
