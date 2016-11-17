@@ -1,0 +1,20 @@
+Sub InsertCanada()
+'I have a table called "Canada" with 75319 rows and the following columns: ProductID, Date, Zip, Units, Revenue,Country.
+'The following is to connect from VBA to MySQL
+Dim cn As ADODB.Connection
+Set cn = New ADODB.Connection
+cn.Open "DRIVER={MySQL ODBC 5.3 ANSI Driver}; SERVER=localhost; DATABASE=Sales; USER=*****; PASSWORD=*****; Option=3"
+'The following is to insert the first 10 000 rows into MySQL
+Dim rs As ADODB.Recordset
+Set rs = New ADODB.Recordset
+i = 1
+Do While i <= 10000
+'ProductID is contained in column A, Date in column B, Zip in column C, Units in column D, Revenue in column E and Country in column D
+stringSQL = "INSERT INTO Canada (ProductID, Date, Zip, Units, Revenue, Country) VALUES (" & Cells(i, 1).Value & "," & Cells(i, 2).Value & ",'" & Cells(i, 3).Value & "'," & Cells(i, 4).Value & "," & Cells(i, 5).Value & ",'" & Cells(i, 6).Value & "')"
+rs.Open stringSQL, cn
+i = i + 1
+Loop
+'I repeat the same process from i=10000 to 20000 and so on because otherwise Excel will stop working
+
+
+End Sub
