@@ -1,0 +1,69 @@
+'First I create the dataset
+Sub dataset()
+Dim i As Integer
+Dim j As Integer
+Cells(1, 1).Value = "student ID"
+Cells(1, 2).Value = "Mock exam results"
+Cells(1, 3).Value = "Final exam results"
+
+'create Id's
+
+For i = 2 To 4
+Cells(i, 1).Value = i - 1
+Next i
+
+'Create random integers (ranging from 1 to 10). These are the results
+'from the mock exam.
+
+For j = 2 To 4
+Cells(j, 2).Value = Int((10 - 0 + 1) * Rnd) + 0
+Next j
+
+'Create random integers from 1 to 10. These are the final results.
+Dim k As Integer
+For k = 2 To 4
+Cells(k, 3).Value = Int((10 - 0 + 1) * Rnd) + 0
+Next k
+
+'Compute average of both mock exam results and final exam results
+
+Dim x As Double, y As Double
+
+x = Application.WorksheetFunction.Average(Range("B2:B4"))
+y = Application.WorksheetFunction.Average(Range("C2:C4"))
+
+Dim min As Double
+Dim max As Double
+
+With Application.WorksheetFunction
+min = .min(Range("B2:B4"))
+max = .max(Range("B2:B4"))
+End With
+
+'Create array to store the values a_i, b_i in a 2-dimensional array
+
+Dim m As Double, n As Double, s As Double, t As Double, h As Integer
+Dim MyArray(2, 1) As Double
+For h = 0 To 2
+MyArray(h, 0) = Cells(h + 3, 2).Value - x
+MyArray(h, 1) = Cells(h + 3, 3).Value - y
+Next h
+'Create array to store the values a_i * b_i and b_i * b_i in a 2-dimensional array
+Dim MySecondArray(2, 1) As Double
+For i = 0 To 2
+MySecondArray(i, 0) = MyArray(i, 0) * MyArray(i, 1)
+MySecondArray(i, 1) = MyArray(i, 1) * MyArray(i, 1)
+Next i
+'sum each one fo the columns from the second array, call the values s and t
+With Application.WorksheetFunction
+ s = .Sum(.Index(MySecondArray, 0, 0))
+ t = .Sum(.Index(MySecondArray, 0, 1))
+End With
+'create the values m and n from s and t
+m = s / t
+n = y - m * x
+MsgBox "The minimum mock exam result is " & min & " and the maximum mock exam result is " & max
+Dim mock_exam_result As Double
+mock_exam_result = InputBox("Enter your mock exam result ranging between 0-10. Make sure your result lies between " & min & " and " & max & ", otherwise the prediction will be not good!")
+MsgBox "Your result in the final exam will be " & m * mock_exam_result + n
+End Sub
