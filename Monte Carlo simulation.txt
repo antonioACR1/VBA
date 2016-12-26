@@ -1,0 +1,119 @@
+'Price follows a normal distribution. The following function will choose a random value x from a normal distribution having mean equal to M and standard deviation equal to SD
+Function price(M As Integer, SD As Integer)
+
+Dim x As Double
+Dim y As Double
+y = Rnd()
+x = Application.WorksheetFunction.NormInv(y, M, SD)
+price = x
+End Function
+'Cost follows a normal distribution as well. This function returns a randomvalue x1 from a normal ditribution having mean equal to M1 and standard deviation equal to SD1
+Function cost(M1 As Integer, SD1 As Integer)
+Dim x1 As Double
+Dim y1 As Double
+y1 = Rnd()
+x1 = Application.WorksheetFunction.NormInv(y1, M1, SD1)
+cost = x1
+End Function
+'Now start Monte Carlo simulation
+Sub simulation()
+
+'Q is the quantity (number of units) which follows a uniform distribution between 10 000 and 12 000
+'P is the price for each unit. It follows a normal ditribution with mean equal to 50 and standard deviation equal to 10
+'C is the variable cost and follows a normal distribution with mean 100 and standard deviation 30.
+Dim Q As Double, P As Double, C As Double
+'Profit is an array to store the profit values after each iteration. The formula is Profit = Revenue - Cost. The number of iterations will be 50 000
+Dim Profit(1 To 50000) As Double
+
+
+'The number Count will count how many times the profit is positive
+Count = 0
+'The nuber Amount is the sum of all the positive profit values after each iteration
+Amount = 0
+
+'Now a loop to define my 50 000 profit values
+'Recall that Revenue = Quantity * Price and Cost = Fixed Cost + Quantity * Variable Cost. The fixed cost will be $10 000
+For i = 1 To 50000
+
+'Recall that Quantity follows a uniform distribution between 10000 and 12000, so I choose a random integer between 10 000 and 12 000
+
+Q = Int((12000 - 10000 + 1) * Rnd + 10000)
+
+'Now choose a random price P coming from a normal distribution with mean = 50 and standard deviation = 10
+P = price(50, 10)
+'And choose a random cost C coming from a normal distribution with mean = 100 and standard deviation = 30
+C = cost(100, 30)
+
+'Set the previous values into the formula for the Profit = Revenue - Cost
+'Recall that Revenue = Units * Price and Cost = Fixed cost + (Units * Variable Cost)
+Profit(i) = (Q * P) - (Q * C + 10000)
+'Count + 1 is the profit is positive
+If Profit(i) > 0 Then
+Count = Count + 1
+'Sum profit if positive
+Amount = Amount + Profit(i)
+End If
+Next i
+'Return probability of having positive profit and the expected amount if positive
+a = Count / 50000
+MsgBox "The probability of having a positive profit is " & a & "%"
+b = Amount / 50000
+MsgBox "If the probability is positive, then the expected average profit is " & Round(b, 2) & " dollars"
+
+'The following code is to sort the values of the array Profit from the smallest value to the largest
+Dim j As Long
+Dim Temporal As Double
+For j = 2 To 50000
+    Temporal = Profit(j)
+    For i = j - 1 To 1 Step -1
+       If (Profit(i) <= Temporal) Then GoTo 200
+       Profit(i + 1) = Profit(i)
+    Next i
+    i = 0
+200     Profit(i + 1) = Temporal
+Next j
+
+'Split the range of the values in Profit in 100 distinct sections
+Dim Length As Single
+Length = (Profit(50000) - Profit(1)) / 100
+
+'Define the frequencies for each section
+Dim Frequency(1 To 100) As Single
+For i = 1 To 100
+Frequency(i) = 0
+Next i
+'Now define the sections
+Dim Section(1 To 100) As Single
+For i = 1 To 100
+Section(i) = Profit(1) + Length * i
+Next i
+'Store the sections in column B
+For i = 1 To 100
+Cells(i, 2).value = Section(i)
+Next i
+
+'Store the ordered profit values in column A
+For i = 1 To 50000
+Cells(i, 1).value = Profit(i)
+Next i
+'Now define frequencies
+For i = 1 To 50000
+     If (Profit(i) <= Section(1)) Then Frequency(1) = Frequency(1) + 1
+     
+     If (Profit(i) >= Section(100 - 1)) Then Frequency(100) = Frequency(100) + 1
+     
+Next i
+For i = 2 To 50000 - 1
+     For j = 2 To 100 - 1
+     If (Profit(i) > Section(j - 1)) And (Profit(i) <= Section(j)) Then Frequency(j) = Frequency(j) + 1
+     
+     Next j
+Next i
+'And now store the frequencies in column C
+
+For i = 1 To 100
+Cells(i, 3).value = Frequency(i)
+Next i
+
+'Finally I will insert chart to check that profit alo follows a normal distribution
+End Sub
